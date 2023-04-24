@@ -18,7 +18,7 @@ async function createApp() {
 }
 
 async function runApp(app: INestApplication) {
-  app.listen(8001);
+  app.listen(3000);
 }
 
 async function configApp(app: INestApplication) {
