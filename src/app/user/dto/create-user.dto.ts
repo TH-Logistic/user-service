@@ -1,9 +1,12 @@
 import { Exclude } from "class-transformer";
-import { User } from "../user.schema";
-import { UserRole } from "../role";
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsPositive, IsString } from "class-validator";
+import { User } from "../entities/user.schema";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsPhoneNumber, IsPositive, IsString, MinLength } from "class-validator";
+import { UserRole } from "../entities/role";
+import { Gender } from "../entities/gender";
+import { UserStatus } from "../entities/user-status";
 
-export class CreateUserDTO extends User {
+export class CreateUserDTO {
+
     @IsString()
     @IsNotEmpty()
     name: string;
@@ -24,4 +27,23 @@ export class CreateUserDTO extends User {
     @IsNumber()
     @IsPositive()
     birthday: number;
+
+    @IsString()
+    @IsNotEmpty()
+    username: string;
+
+    @IsEnum(Gender)
+    gender: Gender;
+
+    @IsString()
+    @IsPhoneNumber('VN')
+    phoneNumber: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(8)
+    bankAccount: string;
+
+    @IsString()
+    bankName: string;
 }

@@ -29,8 +29,9 @@ async function configApp(app: INestApplication) {
     // new ClassSerializerInterceptor(new Reflector(), {})
   )
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: false,
+    whitelist: true,
     forbidNonWhitelisted: true,
+    forbidUnknownValues: true,
     transform: true, // automatically transform request fields to desired type
   }));
 }

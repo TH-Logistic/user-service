@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { User } from "./user.schema";
+import { User } from "./entities/user.schema";
 import { Model, Types } from "mongoose";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { UpdateUserDTO } from "./dto/update-user.dto";
@@ -22,7 +22,7 @@ export class UserService {
     async findByEmail(email: string): Promise<User | undefined> {
         return this.userModel.findOne({
             email: email,
-        }, { password: false }, {}).exec()
+        }, { password: false }, {}).orFail()
     }
 
     async createUser(createUserDTO: CreateUserDTO): Promise<User> {
@@ -37,7 +37,7 @@ export class UserService {
         }, {
             returnOriginal: false,
             projection: { password: false }
-        })
+        }).orFail()
 
         return result;
     }

@@ -4,7 +4,7 @@ import { isArray, isObject } from "class-validator";
 import { Request, Response } from "express";
 import { stat } from "fs";
 import { BaseResponse } from "../dto/base.response";
-import { MongooseError, mongo } from "mongoose";
+import { MongooseError, mongo, Error as MongoError } from "mongoose";
 
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -44,6 +44,15 @@ export class CustomExceptionFilter implements ExceptionFilter {
                 } else {
                     message = exceptionResponse
                 }
+                break
+            case MongoError.DocumentNotFoundError:
+                status = 404;
+                message = (exception as MongoError).message;
+                break;
+
+            case MongooseError:
+                status = 400;
+                message = (exception as MongooseError).message;
                 break
             case mongo.MongoServerError:
                 status = 400;

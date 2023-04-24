@@ -4,7 +4,7 @@ import { Observable, firstValueFrom, lastValueFrom } from "rxjs";
 import { ROLES_KEY } from "./role.decorator";
 import { Request } from "express";
 import { HttpService } from "@nestjs/axios";
-import { UserRole } from "src/app/user/role";
+import { UserRole } from "../../app/user/entities/role";
 
 export const USER_KEY = 'user'
 
