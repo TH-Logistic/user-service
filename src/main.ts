@@ -18,7 +18,7 @@ async function createApp() {
 }
 
 async function runApp(app: INestApplication) {
-  app.listen(3000);
+  app.listen(8001);
 }
 
 async function configApp(app: INestApplication) {
@@ -26,10 +26,10 @@ async function configApp(app: INestApplication) {
   app.useGlobalFilters(new CustomExceptionFilter());
   app.useGlobalInterceptors(
     new ResponseInterceptor(),
-    new ClassSerializerInterceptor(new Reflector(), {})
+    // new ClassSerializerInterceptor(new Reflector(), {})
   )
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
+    whitelist: false,
     forbidNonWhitelisted: true,
     transform: true, // automatically transform request fields to desired type
   }));

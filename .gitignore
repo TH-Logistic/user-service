@@ -36,4 +36,4 @@ lerna-debug.log*
 
 # ENV
 *.env
-!template.env
+!.env.example

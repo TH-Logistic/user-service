@@ -1,28 +1,36 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from 'src/config/middlewares/logger.middleware';
-import * as mongoose from 'mongoose';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `./env/dev.env`,
+      envFilePath: `./env/.env`,
     }),
-    MongooseModule.forRootAsync({
-      connectionName: 'TH Logistic',
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get('MONGO_INITDB_HOST')}:${configService.get('MONGO_INITDB_PORT')}`,
-        dbName: configService.get('MONGO_INITDB_DATABASE'),
-        auth: {
-          username: configService.get('MONGO_INITDB_ROOT_USERNAME'),
-          password: configService.get('MONGO_INITDB_ROOT_USERNAME')
-        }
-      }),
-    })
+    MongooseModule.forRoot(`mongodb://${process.env.MONGO_INITDB_HOST}:${process.env.MONGO_INITDB_PORT}`, {
+      dbName: process.env.MONGO_INITDB_DATABASE,
+      auth: {
+        username: process.env.MONGO_INITDB_ROOT_USERNAME,
+        password: process.env.MONGO_INITDB_ROOT_PASSWORD
+      }
+    }),
+    // MongooseModule.forRootAsync({
+    //   connectionName: 'TH Logistic',
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     uri: `mongodb://${configService.get('MONGO_INITDB_HOST')}:${configService.get('MONGO_INITDB_PORT')}`,
+    //     dbName: configService.get('MONGO_INITDB_DATABASE'),
+    //     auth: {
+    //       username: configService.get('MONGO_INITDB_ROOT_USERNAME'),
+    //       password: configService.get('MONGO_INITDB_ROOT_USERNAME')
+    //     }
+    //   }),
+    // }),
+
+    UserModule
   ],
 })
 export class AppModule implements NestModule {

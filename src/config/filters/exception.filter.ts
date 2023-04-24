@@ -3,8 +3,8 @@ import { classToPlain } from "class-transformer";
 import { isArray, isObject } from "class-validator";
 import { Request, Response } from "express";
 import { stat } from "fs";
-import { QueryFailedError, TypeORMError } from "typeorm";
 import { BaseResponse } from "../dto/base.response";
+import { MongooseError, mongo } from "mongoose";
 
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -45,17 +45,14 @@ export class CustomExceptionFilter implements ExceptionFilter {
                     message = exceptionResponse
                 }
                 break
+            case mongo.MongoServerError:
+                status = 400;
+                message = (exception as mongo.MongoServerError).errmsg
+                break;
+
             case HttpException:
                 status = exception.getStatus() ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
                 message = (exception as HttpException).message
-                break;
-            case TypeORMError:
-                status = HttpStatus.BAD_REQUEST
-                message = (exception as TypeORMError).message
-                break;
-            case QueryFailedError:
-                message = (exception as QueryFailedError).message
-                status = HttpStatus.BAD_REQUEST
                 break;
             case String:
                 status = HttpStatus.INTERNAL_SERVER_ERROR
