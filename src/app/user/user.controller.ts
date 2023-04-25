@@ -12,13 +12,23 @@ export class UserController {
     }
 
     @Get()
-    async getUserById(@Query('id') id?: string, @Query('email') email?: string) {
-        return id ? this.userService.findById(id) : this.userService.findByEmail(email);
+    async getUsers() {
+        return this.userService.findAll();
     }
 
-    @Get()
-    async getUserByEmail(@Query('email') email: string) {
+    @Get('/:id')
+    async getUserById(@Param('id') id: string) {
+        return this.userService.findById(id);
+    }
+
+    @Get('/email/:email')
+    async getUserByEmail(@Param('email') email: string) {
         return this.userService.findByEmail(email);
+    }
+
+    @Get('/username/:username')
+    async getByUsername(@Param('username') username: string) {
+        return this.userService.findByUsername(username);
     }
 
     @Post()

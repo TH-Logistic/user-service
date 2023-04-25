@@ -10,7 +10,8 @@ export class UserService {
     constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
     async findAll(): Promise<User[]> {
-        return this.userModel.find().exec()
+        return this.userModel.find({
+        }, { password: false }, {}).exec()
     }
 
     async findById(id: string): Promise<User | undefined> {
@@ -22,6 +23,12 @@ export class UserService {
     async findByEmail(email: string): Promise<User | undefined> {
         return this.userModel.findOne({
             email: email,
+        }, { password: false }, {}).orFail()
+    }
+
+    async findByUsername(username: string): Promise<User | undefined> {
+        return this.userModel.findOne({
+            username: username
         }, { password: false }, {}).orFail()
     }
 

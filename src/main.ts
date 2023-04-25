@@ -24,6 +24,7 @@ async function runApp(app: INestApplication) {
 async function configApp(app: INestApplication) {
   app.setGlobalPrefix("/api")
   app.useGlobalFilters(new CustomExceptionFilter());
+  app.enableVersioning();
   app.useGlobalInterceptors(
     new ResponseInterceptor(),
     // new ClassSerializerInterceptor(new Reflector(), {})
