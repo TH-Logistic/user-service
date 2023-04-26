@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { CustomExceptionFilter } from './config/filters/exception.filter';
@@ -24,7 +24,6 @@ async function runApp(app: INestApplication) {
 async function configApp(app: INestApplication) {
   app.setGlobalPrefix("/api")
   app.useGlobalFilters(new CustomExceptionFilter());
-  app.enableVersioning();
   app.useGlobalInterceptors(
     new ResponseInterceptor(),
     // new ClassSerializerInterceptor(new Reflector(), {})
@@ -35,6 +34,8 @@ async function configApp(app: INestApplication) {
     forbidUnknownValues: true,
     transform: true, // automatically transform request fields to desired type
   }));
+
+  app.enableCors();
 }
 
 async function documentingApp(app: INestApplication) {
