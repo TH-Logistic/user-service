@@ -28,14 +28,16 @@ export class AppGuard implements CanActivate {
                 const token = request.headers.authorization.trim();
 
                 const result = await lastValueFrom(
-                    this.httpService.get(`http://${process.env.AUTH_HOST ?? 'localhost'}:${process.env.AUTH_PORT}/check-permissions`, {
-                        data: requiredRoles.map(role => role.toString()),
-                        headers: {
-                            "Authorization": token
-                        },
-                    })
+                    this.httpService.post(
+                        `${process.env.AUTH_HOST ?? 'http://localhost'}:${process.env.AUTH_PORT}/check-permissions`,
+                        requiredRoles.map(role => role.toString()),
+                        {
+                            headers: {
+                                "Authorization": token
+                            },
+                        }
+                    )
                 )
-
 
                 if (result.status >= 200 && result.status < 300) {
                     request.headers[USER_KEY] = result.data.data.id
@@ -48,9 +50,7 @@ export class AppGuard implements CanActivate {
             }
 
         } catch (e) {
-            console.log(e)
-
-
+            console.log(e.response)
             return ignoreRole;
         }
     }

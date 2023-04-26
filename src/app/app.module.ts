@@ -5,13 +5,14 @@ import { LoggerMiddleware } from 'src/config/middlewares/logger.middleware';
 import { UserModule } from './user/user.module';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { AppGuard } from 'src/config/guard/auth.guard';
-import { HttpService } from '@nestjs/axios';
+import { HttpModule, HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `./env/.env`,
     }),
+    HttpModule.register({}),
     MongooseModule.forRoot(`mongodb://${process.env.MONGO_INITDB_HOST}:${process.env.MONGO_INITDB_PORT}`, {
       dbName: process.env.MONGO_INITDB_DATABASE,
       auth: {
@@ -41,7 +42,8 @@ import { HttpService } from '@nestjs/axios';
         return new AppGuard(new Reflector(), httpService);
       },
       provide: APP_GUARD,
-    }
+      inject: [HttpService]
+    },
   ],
 })
 export class AppModule implements NestModule {
