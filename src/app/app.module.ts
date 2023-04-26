@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerMiddleware } from 'src/config/middlewares/logger.middleware';
 import { UserModule } from './user/user.module';
+import { APP_GUARD, Reflector } from '@nestjs/core';
+import { AppGuard } from 'src/config/guard/auth.guard';
+import { HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -31,6 +34,14 @@ import { UserModule } from './user/user.module';
     // }),
 
     UserModule
+  ],
+  providers: [
+    {
+      useFactory: (httpService: HttpService) => {
+        return new AppGuard(new Reflector(), httpService);
+      },
+      provide: APP_GUARD,
+    }
   ],
 })
 export class AppModule implements NestModule {

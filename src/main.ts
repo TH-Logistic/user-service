@@ -4,6 +4,7 @@ import { AppModule } from './app/app.module';
 import { CustomExceptionFilter } from './config/filters/exception.filter';
 import { ResponseInterceptor } from './config/interceptors/response.interceptor';
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { AppGuard } from './config/guard/auth.guard';
 
 async function bootstrap() {
   const app = await createApp();
