@@ -4,6 +4,7 @@ import { Roles } from "src/config/guard/role.decorator";
 import { UserService } from "./user.service";
 import { IsEmail } from "class-validator";
 import { UpdateUserDTO } from "./dto/update-user.dto";
+import { UserRole } from "./entities/role";
 
 @Controller('/users')
 export class UserController {
@@ -12,6 +13,7 @@ export class UserController {
     }
 
     @Get()
+    @Roles(UserRole.ADMIN)
     async getUsers() {
         return this.userService.findAll();
     }
