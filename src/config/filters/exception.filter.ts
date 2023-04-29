@@ -1,4 +1,4 @@
-import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException, HttpStatus, NotFoundException } from "@nestjs/common";
+import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, ForbiddenException, HttpException, HttpStatus, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { classToPlain } from "class-transformer";
 import { isArray, isObject } from "class-validator";
 import { Request, Response } from "express";
@@ -45,6 +45,17 @@ export class CustomExceptionFilter implements ExceptionFilter {
                     message = exceptionResponse
                 }
                 break
+
+            case UnauthorizedException:
+                status = (exception as UnauthorizedException).getStatus();
+                message = (exception as UnauthorizedException).message;
+                break;
+
+            case ForbiddenException:
+                status = (exception as ForbiddenException).getStatus();
+                message = (exception as ForbiddenException).message;
+                break;
+
             case MongoError.DocumentNotFoundError:
                 status = 404;
                 message = (exception as MongoError).message;

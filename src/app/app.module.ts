@@ -12,7 +12,10 @@ import { HttpModule, HttpService } from '@nestjs/axios';
     ConfigModule.forRoot({
       envFilePath: `./env/.env`,
     }),
-    HttpModule.register({}),
+    {
+      ...HttpModule.register({}),
+      global: true,
+    },
     MongooseModule.forRoot(`mongodb://${process.env.MONGO_INITDB_HOST}:${process.env.MONGO_INITDB_PORT}`, {
       dbName: process.env.MONGO_INITDB_DATABASE,
       auth: {
@@ -38,11 +41,8 @@ import { HttpModule, HttpService } from '@nestjs/axios';
   ],
   providers: [
     {
-      useFactory: (httpService: HttpService) => {
-        return new AppGuard(new Reflector(), httpService);
-      },
+      useClass: AppGuard,
       provide: APP_GUARD,
-      inject: [HttpService]
     },
   ],
 })

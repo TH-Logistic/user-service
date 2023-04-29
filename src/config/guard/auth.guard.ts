@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Observable, firstValueFrom, lastValueFrom } from "rxjs";
 import { ROLES_KEY } from "./role.decorator";
@@ -12,7 +12,7 @@ export const USER_KEY = 'user'
 export class AppGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
-        private readonly httpService: HttpService
+        @Inject(HttpService) private readonly httpService: HttpService
     ) { }
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
@@ -39,6 +39,7 @@ export class AppGuard implements CanActivate {
                     )
                 )
 
+
                 if (result.status >= 200 && result.status < 300) {
                     request.headers[USER_KEY] = result.data.data.id
                     return true
@@ -50,7 +51,8 @@ export class AppGuard implements CanActivate {
             }
 
         } catch (e) {
-            console.log(e.response)
+            console.log(e)
+
             return ignoreRole;
         }
     }
