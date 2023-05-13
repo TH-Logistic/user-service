@@ -20,7 +20,7 @@ services:
     restart: always
 
   user_service:
-    image: www.thinhlh.com/user_service
+    image: registry.thinhlh.com/user_service
     container_name: user_service_container
     networks:
       - app_network

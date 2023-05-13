@@ -42,6 +42,7 @@ export class AppGuard implements CanActivate {
 
                 if (result.status >= 200 && result.status < 300) {
                     request.headers[USER_KEY] = result.data.data.id
+                    request['token'] = this.extractToken(token);
                     return true
                 } else {
                     return ignoreRole;

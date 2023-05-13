@@ -1,35 +1,102 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable, Req, Scope } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "./entities/user.schema";
 import { Model, Types } from "mongoose";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { UpdateUserDTO } from "./dto/update-user.dto";
+import { ConfigService } from "@nestjs/config";
+import { HttpService } from "@nestjs/axios";
+import { lastValueFrom } from "rxjs";
+import { Request } from "express";
+import { REQUEST } from "@nestjs/core";
+import { UserWithLicensePlate } from "./dto/user-with-license-plate-dto";
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class UserService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+    constructor(
+        @InjectModel(User.name) private userModel: Model<User>,
+        private httpService: HttpService,
+        @Inject(REQUEST) private readonly request: Request
+    ) { }
 
-    async findAll(): Promise<User[]> {
-        return this.userModel.find({
-        }, { password: false }, {}).exec()
+    private async getAssignedTransportation(driverId: string) {
+        const token = this.request.headers.authorization;
+        const transportationUrl = process.env.TRANSPORTATION_URL;
+
+        const transportation =
+            await lastValueFrom(
+                this.httpService.get(
+                    `${transportationUrl}/transportation/find-by-driver/${driverId}`,
+                    {
+                        headers: {
+                            Authorization: token,
+                        }
+                    }
+                )
+            )
+                .then((value) => value.data.data)
+                .catch((err) => {
+                    console.log('================= ERROR =================')
+                    console.log(err)
+                    return undefined
+                });
+
+        return transportation;
+    }
+
+    private async getUserWithPlate(user: User, id: string): Promise<UserWithLicensePlate> {
+        const transportation = await this.getAssignedTransportation(id);
+
+        const licensePlate = transportation ? transportation.licensePlate : undefined;
+
+        let result: User = JSON.parse(JSON.stringify(user));
+
+        console.log(result)
+
+        return {
+            ...result,
+            licensePlate
+        }
+    }
+
+    async findAll(): Promise<UserWithLicensePlate[]> {
+        const results = await this
+            .userModel
+            .find(
+                {},
+                { password: false },
+                {}
+            )
+            .exec()
+            .then(
+                (e) => e.map<Promise<UserWithLicensePlate>>(user => this.getUserWithPlate(user, user.id))
+            )
+
+        return Promise.all(results);
     }
 
     async findById(id: string): Promise<User | undefined> {
-        return this.userModel.findById(new Types.ObjectId(id), {
+        const user = await this.userModel.findById(new Types.ObjectId(id), {
             password: false,
-        }).exec()
+        }).exec();
+
+        return this.getUserWithPlate(user, user.id);
     }
 
     async findByEmail(email: string): Promise<User | undefined> {
-        return this.userModel.findOne({
+        const user = await this.userModel.findOne({
             email: email,
         }, { password: false }, {}).orFail()
+
+        return await this.getUserWithPlate(user, user.id);
     }
 
     async findByUsername(username: string): Promise<User | undefined> {
-        return this.userModel.findOne({
+        const user = await this.userModel.findOne({
             username: username
         }, { password: false }, {}).orFail()
+
+        return await this.getUserWithPlate(user, user.id);
     }
 
     async createUser(createUserDTO: CreateUserDTO): Promise<User> {
