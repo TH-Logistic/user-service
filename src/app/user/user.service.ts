@@ -1,10 +1,9 @@
-import { HttpException, HttpStatus, Inject, Injectable, Req, Scope } from "@nestjs/common";
+import { Inject, Injectable, Scope } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "./entities/user.schema";
 import { Model, Types } from "mongoose";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { UpdateUserDTO } from "./dto/update-user.dto";
-import { ConfigService } from "@nestjs/config";
 import { HttpService } from "@nestjs/axios";
 import { lastValueFrom } from "rxjs";
 import { Request } from "express";
@@ -51,8 +50,6 @@ export class UserService {
 
         let result: User = JSON.parse(JSON.stringify(user));
 
-        console.log(result)
-
         return {
             ...result,
             licensePlate
@@ -68,11 +65,13 @@ export class UserService {
                 {}
             )
             .exec()
-            .then(
-                (e) => e.map<Promise<UserWithLicensePlate>>(user => this.getUserWithPlate(user, user.id))
-            )
+        // .then(
+        //     (e) => e.map<Promise<UserWithLicensePlate>>(user => this.getUserWithPlate(user, user.id))
+        // )
 
-        return Promise.all(results);
+        // return Promise.all(results);
+
+        return results;
     }
 
     async findById(id: string): Promise<User | undefined> {
@@ -80,7 +79,9 @@ export class UserService {
             password: false,
         }).exec();
 
-        return this.getUserWithPlate(user, user.id);
+        // return this.getUserWithPlate(user, user.id);
+
+        return user;
     }
 
     async findByEmail(email: string): Promise<User | undefined> {
@@ -88,7 +89,9 @@ export class UserService {
             email: email,
         }, { password: false }, {}).orFail()
 
-        return await this.getUserWithPlate(user, user.id);
+        // return await this.getUserWithPlate(user, user.id);
+
+        return user;
     }
 
     async findByUsername(username: string): Promise<User | undefined> {
@@ -96,7 +99,8 @@ export class UserService {
             username: username
         }, { password: false }, {}).orFail()
 
-        return await this.getUserWithPlate(user, user.id);
+        // return await this.getUserWithPlate(user, user.id);
+        return user;
     }
 
     async createUser(createUserDTO: CreateUserDTO): Promise<User> {

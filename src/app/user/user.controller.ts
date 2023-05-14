@@ -5,7 +5,6 @@ import { UserService } from "./user.service";
 import { IsEmail } from "class-validator";
 import { UpdateUserDTO } from "./dto/update-user.dto";
 import { UserRole } from "./entities/role";
-import { Request } from "express";
 
 @Controller('/users')
 export class UserController {
