@@ -29,7 +29,7 @@ export class AppGuard implements CanActivate {
 
                 const result = await lastValueFrom(
                     this.httpService.post(
-                        `${process.env.AUTH_HOST ?? 'http://localhost'}:${process.env.AUTH_PORT}/check-permissions`,
+                        `${process.env.AUTH_URL}/check-permissions`,
                         requiredRoles.map(role => role.toString()),
                         {
                             headers: {

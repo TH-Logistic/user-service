@@ -14,5 +14,5 @@ docker push $REGISTRY/user_service:${VERSION}
 # https://www.docker.com/blog/how-to-deploy-on-remote-docker-hosts-with-docker-compose/
 
 docker-compose --context remote-server-thinhlh down --rmi all --volumes
-docker-compose --context remote-server-thinhlh --env-file ./env/.env up -d
+docker-compose --context remote-server-thinhlh --env-file ./env/.env.prod up -d
 docker-compose --context remote-server-thinhlh logs --follow

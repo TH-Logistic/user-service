@@ -32,8 +32,7 @@ services:
       - MONGO_INITDB_DATABASE
       - MONGO_INITDB_ROOT_USERNAME
       - MONGO_INITDB_ROOT_PASSWORD
-      - AUTH_HOST
-      - AUTH_PORT
+      - AUTH_URL
     depends_on:
       - mongo
 
