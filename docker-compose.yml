@@ -33,8 +33,6 @@ services:
       - MONGO_INITDB_ROOT_USERNAME
       - MONGO_INITDB_ROOT_PASSWORD
       - AUTH_URL
-    depends_on:
-      - mongo
 
 networks:
   app_network:

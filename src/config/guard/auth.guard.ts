@@ -29,7 +29,7 @@ export class AppGuard implements CanActivate {
 
                 const result = await lastValueFrom(
                     this.httpService.post(
-                        `${process.env.AUTH_URL}/check-permissions`,
+                        `http://${process.env.AUTH_URL}/check-permissions`,
                         requiredRoles.map(role => role.toString()),
                         {
                             headers: {
@@ -38,7 +38,6 @@ export class AppGuard implements CanActivate {
                         }
                     )
                 )
-
 
                 if (result.status >= 200 && result.status < 300) {
                     request.headers[USER_KEY] = result.data.data.id

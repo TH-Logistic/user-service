@@ -9,6 +9,7 @@ import { lastValueFrom } from "rxjs";
 import { Request } from "express";
 import { REQUEST } from "@nestjs/core";
 import { UserWithLicensePlate } from "./dto/user-with-license-plate-dto";
+import { UserRole } from "./entities/role";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -56,11 +57,11 @@ export class UserService {
         }
     }
 
-    async findAll(): Promise<UserWithLicensePlate[]> {
+    async findAll(role: UserRole): Promise<UserWithLicensePlate[]> {
         const results = await this
             .userModel
             .find(
-                {},
+                role ? { role: role } : {},
                 { password: false },
                 {}
             )
