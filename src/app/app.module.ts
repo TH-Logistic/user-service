@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerMiddleware } from 'src/config/middlewares/logger.middleware';
@@ -6,11 +6,15 @@ import { UserModule } from './user/user.module';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { AppGuard } from 'src/config/guard/auth.guard';
 import { HttpModule, HttpService } from '@nestjs/axios';
+import { UserService } from './user/user.service';
+import { Gender } from './user/entities/gender';
+import { UserRole } from './user/entities/role';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `./env/.env`,
+      isGlobal: true,
     }),
     {
       ...HttpModule.register({}),
@@ -46,7 +50,34 @@ import { HttpModule, HttpService } from '@nestjs/axios';
     },
   ],
 })
-export class AppModule implements NestModule {
+export class AppModule implements NestModule, OnApplicationBootstrap {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+  ) {
+  }
+
+
+  async onApplicationBootstrap() {
+    const rootUser = this.configService.get<string>("ROOT_USER")
+    const rootPassword = this.configService.get<string>("ROOT_PASSWORD")
+
+    const rootAccount = await this.userService.createUser({
+      avatar: "admin",
+      bankAccount: "admin",
+      bankName: "admin",
+      birthday: new Date().getTime(),
+      username: rootUser,
+      password: rootPassword,
+      email: "admin@thlogistic.com",
+      gender: Gender.MALE,
+      name: rootUser,
+      phoneNumber: "",
+      role: UserRole.ADMIN
+    })
+    console.log("Root account created!")
+    console.log("Root account created ", rootAccount)
+  }
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(
       LoggerMiddleware
