@@ -50,11 +50,12 @@ import { UserRole } from './user/entities/role';
     },
   ],
 })
-export class AppModule implements NestModule, OnApplicationBootstrap {
+export class AppModule implements OnApplicationBootstrap {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly userService: UserService,
+    private configService: ConfigService,
+    private userService: UserService,
   ) {
+
   }
 
 
@@ -62,28 +63,33 @@ export class AppModule implements NestModule, OnApplicationBootstrap {
     const rootUser = this.configService.get<string>("ROOT_USER")
     const rootPassword = this.configService.get<string>("ROOT_PASSWORD")
 
-    const rootAccount = await this.userService.createUser({
-      avatar: "admin",
-      bankAccount: "admin",
-      bankName: "admin",
-      birthday: new Date().getTime(),
-      username: rootUser,
-      password: rootPassword,
-      email: "admin@thlogistic.com",
-      gender: Gender.MALE,
-      name: rootUser,
-      phoneNumber: "",
-      role: UserRole.ADMIN
-    })
-    console.log("Root account created!")
-    console.log("Root account created ", rootAccount)
+    const existedUser = await this.userService.findByUsernameNullable(rootUser);
+    if (!existedUser) {
+      const rootAccount = await this.userService.createUser({
+        avatar: "admin",
+        bankAccount: "adminBankAccount",
+        bankName: "admin",
+        birthday: new Date().getTime(),
+        username: rootUser,
+        password: rootPassword,
+        email: "admin@thlogistic.com",
+        gender: Gender.MALE,
+        name: rootUser,
+        phoneNumber: rootUser,
+        role: UserRole.ADMIN
+      })
+
+      console.log("Root account created!")
+      console.log("Root account created ", rootAccount)
+    }
   }
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(
-      LoggerMiddleware
-    ).forRoutes({
-      path: "",
-      method: RequestMethod.ALL
-    });
-  }
+
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(
+  //     LoggerMiddleware
+  //   ).forRoutes({
+  //     path: "",
+  //     method: RequestMethod.ALL
+  //   });
+  // }
 }

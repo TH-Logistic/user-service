@@ -10,52 +10,53 @@ import { Request } from "express";
 import { REQUEST } from "@nestjs/core";
 import { UserWithLicensePlate } from "./dto/user-with-license-plate-dto";
 import { UserRole } from "./entities/role";
+import * as bcrypt from "bcrypt";
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         private httpService: HttpService,
-        @Inject(REQUEST) private readonly request: Request
+        // @Inject(REQUEST) private readonly request: Request
     ) { }
 
-    private async getAssignedTransportation(driverId: string) {
-        const token = this.request.headers.authorization;
-        const transportationUrl = process.env.TRANSPORTATION_URL;
+    // private async getAssignedTransportation(driverId: string) {
+    //     const token = this.request.headers.authorization;
+    //     const transportationUrl = process.env.TRANSPORTATION_URL;
 
-        const transportation =
-            await lastValueFrom(
-                this.httpService.get(
-                    `${transportationUrl}/transportation/find-by-driver/${driverId}`,
-                    {
-                        headers: {
-                            Authorization: token,
-                        }
-                    }
-                )
-            )
-                .then((value) => value.data.data)
-                .catch((err) => {
-                    console.log('================= ERROR =================')
-                    console.log(err)
-                    return undefined
-                });
+    //     const transportation =
+    //         await lastValueFrom(
+    //             this.httpService.get(
+    //                 `${transportationUrl}/transportation/find-by-driver/${driverId}`,
+    //                 {
+    //                     headers: {
+    //                         Authorization: token,
+    //                     }
+    //                 }
+    //             )
+    //         )
+    //             .then((value) => value.data.data)
+    //             .catch((err) => {
+    //                 console.log('================= ERROR =================')
+    //                 console.log(err)
+    //                 return undefined
+    //             });
 
-        return transportation;
-    }
+    //     return transportation;
+    // }
 
-    private async getUserWithPlate(user: User, id: string): Promise<UserWithLicensePlate> {
-        const transportation = await this.getAssignedTransportation(id);
+    // private async getUserWithPlate(user: User, id: string): Promise<UserWithLicensePlate> {
+    //     const transportation = await this.getAssignedTransportation(id);
 
-        const licensePlate = transportation ? transportation.licensePlate : undefined;
+    //     const licensePlate = transportation ? transportation.licensePlate : undefined;
 
-        let result: User = JSON.parse(JSON.stringify(user));
+    //     let result: User = JSON.parse(JSON.stringify(user));
 
-        return {
-            ...result,
-            licensePlate
-        }
-    }
+    //     return {
+    //         ...result,
+    //         licensePlate
+    //     }
+    // }
 
     async findAll(role: UserRole): Promise<UserWithLicensePlate[]> {
         const results = await this
@@ -104,8 +105,20 @@ export class UserService {
         return user;
     }
 
+    async findByUsernameNullable(username: string): Promise<User | undefined> {
+        const user = await this.userModel.findOne({
+            username: username
+        }, { password: false }, {}).exec();
+
+        return user;
+    }
+
     async createUser(createUserDTO: CreateUserDTO): Promise<User> {
-        const createdUser = (await this.userModel.create(createUserDTO));
+        const createdUser = (await this.userModel.create({
+            ...createUserDTO,
+            password: await bcrypt.hash(createUserDTO.password, 10)
+        }));
+
         return createdUser;
     }
 
